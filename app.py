@@ -68,15 +68,15 @@ class Artist(db.Model):
         return '<Artist {}>'.format(self.name)
 
 # Implement Show model
-  class Show(db.Model):
+class Show(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    artist_id = db.Column(db.Integer, db.ForeignKey(
-        'artist.id'), nullable=False)
+    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False)
     venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
-
+      
     def __repr__(self):
-        return '<Show {}{}{}>'.format(self.name, self.artist_id, self.venue_id)
+      return '<Show {}{}{}>'.format(self.name, self.artist_id, self.venue_id)
+
 #----------------------------------------------------------------------------#
 # Filters.
 #----------------------------------------------------------------------------#
