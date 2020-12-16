@@ -69,13 +69,15 @@ class Artist(db.Model):
 
 # Implement Show model
 class Show(db.Model):
+    __tablename__ = 'Show'
     id = db.Column(db.Integer, primary_key=True)
-    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False)
-    venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), nullable=False)
-    start_time = db.Column(db.DateTime, nullable=False)
-      
+    start_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)    # Start time required field
+
+    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)  
+    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
+
     def __repr__(self):
-      return '<Show {}{}{}>'.format(self.name, self.artist_id, self.venue_id)
+        return f'<Show {self.id} {self.start_time} artist_id={artist_id} venue_id={venue_id}>'
 
 #----------------------------------------------------------------------------#
 # Filters.
