@@ -108,27 +108,66 @@ def index():
 def venues():
   # TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
-  data=[{
-    "city": "San Francisco",
-    "state": "CA",
-    "venues": [{
-      "id": 1,
-      "name": "The Musical Hop",
-      "num_upcoming_shows": 0,
-    }, {
-      "id": 3,
-      "name": "Park Square Live Music & Coffee",
-      "num_upcoming_shows": 1,
-    }]
-  }, {
-    "city": "New York",
-    "state": "NY",
-    "venues": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }]
+
+  # Get data on the venues and populate the data list (grouped per city)
+    venues = Venue.query.order_by('state').order_by('city').all() 
+    
+    # Initialize dictionary, where city, state, and venues are keys
+    data = []   
+
+    # Create set of all unique cities/states combinations 
+    cities_states = set()
+    for venue in venues:
+        cities_states.add( (venue.city, venue.state) )  # Add tuple
+
+    now = datetime.now()    
+
+    # Now iterate over the unique values to seed the data dictionary with city/state locations
+    for loc in cities_states:
+        venues_list = []
+        for venue in venues:
+            if (venue.city == loc[0]) and (venue.state == loc[1]):
+                venue_shows = Show.query.filter_by(venue_id=venue.id).all()
+                num_upcoming = 0
+                for show in venue_shows:
+                    if show.start_time > now:
+                        num_upcoming += 1
+
+                venues_list.append({
+                    "id": venue.id,
+                    "name": venue.name,
+                    "num_upcoming_shows": num_upcoming
+                })
+        data.append({
+            "city": loc[0],
+            "state": loc[1],
+            "venues": venues_list
+        })
+
+    print(data)
+
+  # Original info:
+  # data=[{
+  #   "city": "San Francisco",
+  #   "state": "CA",
+  #   "venues": [{
+  #     "id": 1,
+  #     "name": "The Musical Hop",
+  #     "num_upcoming_shows": 0,
+  #   }, {
+  #     "id": 3,
+  #     "name": "Park Square Live Music & Coffee",
+  #     "num_upcoming_shows": 1,
+  #   }]
+  # }, {
+  #   "city": "New York",
+  #   "state": "NY",
+  #   "venues": [{
+  #     "id": 2,
+  #     "name": "The Dueling Pianos Bar",
+  #     "num_upcoming_shows": 0,
+  #   }]
+  # }]
   return render_template('pages/venues.html', areas=data);
 
 @app.route('/venues/search', methods=['POST'])
