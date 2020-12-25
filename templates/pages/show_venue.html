@@ -82,30 +82,17 @@
 <script>
     function deleteVenue(e) {
         const venue_id = e.dataset.id;
-
-        // New AJAX request to server to GET edit page
         const request_delete = new XMLHttpRequest();
-
         const url = `/venues/${venue_id}/delete`;
-        request_delete.open('GET', url);    // DELETE method is archaic and not really used in practice.
-                                            // To make this work, you need to enable CORS headers which in practice
-                                            // is easier to screw up and introduce security vulnerabilities!
-
-        // Callback on return
+        request_delete.open('GET', url);
         request_delete.onload = () => {
-            // Extract JSON data from request
             const data = JSON.parse(request_delete.responseText);
-            
-            // If delete was successful, redirect
             if (data['deleted'] == true) {
                 window.location.href = data['url'];
             }
         }
-
-        // Actually send the request
-        request_delete.send( null );   // No data, url request
+        request_delete.send( null );  
         return false;
-
     }
 </script>
 {% endblock %}

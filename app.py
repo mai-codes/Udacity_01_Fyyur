@@ -427,7 +427,7 @@ def create_venue_submission():
           print("Error in create_venue_submission()")
           abort(500)
 
-@app.route('/venues/<venue_id>', methods=['DELETE'])
+@app.route('/venues/<venue_id>/delete', methods=['GET'])
 def delete_venue(venue_id):
   # TODO: Complete this endpoint for taking a venue_id, and using
   # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
@@ -638,30 +638,47 @@ def show_artist(artist_id):
 #  ----------------------------------------------------------------
 @app.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
-  form = ArtistForm()
-  artist={
-    "id": 4,
-    "name": "Guns N Petals",
-    "genres": ["Rock n Roll"],
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "326-123-5000",
-    "website": "https://www.gunsnpetalsband.com",
-    "facebook_link": "https://www.facebook.com/GunsNPetals",
-    "seeking_venue": True,
-    "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
-    "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80"
+  # Taken mostly from edit_venue()
+  artist = Artist.query.get(artist_id) 
+  if not artist:
+      return redirect(url_for('index'))
+  else:
+      form = ArtistForm(obj=artist)
+  genres = [ genre.name for genre in artist.genres ]
+  artist = {
+      "id": artist_id,
+      "name": artist.name,
+      "genres": genres,
+      "city": artist.city,
+      "state": artist.state,
+      "phone": (artist.phone[:3] + '-' + artist.phone[3:6] + '-' + artist.phone[6:]),
+      "website": artist.website,
+      "facebook_link": artist.facebook_link,
+      "seeking_venue": artist.seeking_venue,
+      "seeking_description": artist.seeking_description,
+      "image_link": artist.image_link
   }
+  # artist={
+  #   "id": 4,
+  #   "name": "Guns N Petals",
+  #   "genres": ["Rock n Roll"],
+  #   "city": "San Francisco",
+  #   "state": "CA",
+  #   "phone": "326-123-5000",
+  #   "website": "https://www.gunsnpetalsband.com",
+  #   "facebook_link": "https://www.facebook.com/GunsNPetals",
+  #   "seeking_venue": True,
+  #   "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
+  #   "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80"
+  # }
   # TODO: populate form with fields from artist with ID <artist_id>
   return render_template('forms/edit_artist.html', form=form, artist=artist)
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
   # TODO: take values from the form submitted, and update existing
-  # artist record with ID <artist_id> using the new attributes
   # Much of this code from edit_venue_submission()
   form = ArtistForm()
-
   name = form.name.data.strip()
   city = form.city.data.strip()
   state = form.state.data
@@ -675,7 +692,7 @@ def edit_artist_submission(artist_id):
   facebook_link = form.facebook_link.data.strip()
   
   if not form.validate():
-    flash( form.errors )
+    flash(form.errors)
     return redirect(url_for('edit_artist_submission', artist_id=artist_id))
 
   else:
@@ -843,7 +860,32 @@ def create_artist_submission():
   # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
   return render_template('pages/home.html')
 
-
+# Create delete_artist (much like delete_venue)
+@app.route('/artists/<artist_id>/delete', methods=['GET'])
+def delete_artist(artist_id):
+    artist = Artist.query.get(artist_id)
+    if not artist:
+        return redirect(url_for('index'))
+    else:
+        error_on_delete = False
+        artist_name = artist.name
+        try:
+            db.session.delete(artist)
+            db.session.commit()
+        except:
+            error_on_delete = True
+            db.session.rollback()
+        finally:
+            db.session.close()
+        if error_on_delete:
+            flash(f'An error occurred deleting artist {artist_name}.')
+            print("Error in delete_artist()")
+            abort(500)
+        else:
+            return jsonify({
+                'deleted': True,
+                'url': url_for('artists')
+            })
 #  Shows
 #  ----------------------------------------------------------------
 
