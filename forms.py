@@ -1,9 +1,9 @@
 from datetime import datetime
-from flask_wtf import Form
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, TextAreaField, BooleanField
-from wtforms.validators import DataRequired, AnyOf, URL
+from flask_wtf import FlaskForm
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField
+from wtforms.validators import DataRequired, AnyOf, URL, Optional
 
-class ShowForm(Form):
+class ShowForm(FlaskForm):
     artist_id = StringField(
         'artist_id'
     )
@@ -16,7 +16,7 @@ class ShowForm(Form):
         default= datetime.today()
     )
 
-class VenueForm(Form):
+class VenueForm(FlaskForm):
     name = StringField(
         'name', validators=[DataRequired()]
     )
@@ -83,13 +83,25 @@ class VenueForm(Form):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone'
+        'phone', validators=[DataRequired()]
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[Optional(), URL()]    # Can chain these
+    )
+    website = StringField(
+        'website', validators=[Optional(), URL()]
+    )
+    seeking_talent = SelectField(
+        'seeking_talent', validators=[DataRequired()],
+        choices=[
+            ('Yes', 'Yes'),
+            ('No', 'No')
+        ]
+    )
+    seeking_description = StringField(
+        'seeking_description', validators=[Optional()]
     )
     genres = SelectMultipleField(
-        # TODO implement enum restriction
         'genres', validators=[DataRequired()],
         choices=[
             ('Alternative', 'Alternative'),
@@ -114,24 +126,10 @@ class VenueForm(Form):
         ]
     )
     facebook_link = StringField(
-        'facebook_link', validators=[URL()]
-    )
-    #Adding new fields based on changes on app.py
-    website = StringField(
-        'website', validators=[URL()]
-    )
-    seeking_talent = SelectField(
-        'seeking_talent',
-        choices=[
-            ('Yes', 'Yes'),
-            ('No', 'No')
-        ]
-    )
-    seeking_description = TextAreaField(
-        'seeking_description'
+        'facebook_link', validators=[Optional(), URL()]
     )
 
-class ArtistForm(Form):
+class ArtistForm(FlaskForm):
     name = StringField(
         'name', validators=[DataRequired()]
     )
@@ -195,14 +193,25 @@ class ArtistForm(Form):
         ]
     )
     phone = StringField(
-        # TODO implement validation logic for state
-        'phone'
+        'phone', validators=[DataRequired()]
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[Optional(), URL()]    # Can chain these
+    )
+    website = StringField(
+        'website', validators=[Optional(), URL()]
+    )
+    seeking_venue = SelectField(
+        'seeking_venue', validators=[DataRequired()],
+        choices=[
+            ('Yes', 'Yes'),
+            ('No', 'No')
+        ]
+    )
+    seeking_description = StringField(
+        'seeking_description', validators=[Optional()]
     )
     genres = SelectMultipleField(
-        # TODO implement enum restriction
         'genres', validators=[DataRequired()],
         choices=[
             ('Alternative', 'Alternative'),
@@ -227,23 +236,5 @@ class ArtistForm(Form):
         ]
     )
     facebook_link = StringField(
-        # TODO implement enum restriction
-        'facebook_link', validators=[URL()]
-    )
-
-    image_link = StringField(
-        'image_link', validators=[URL()]
-    )
-    website = StringField(
-        'website', validators=[URL()]
-    )
-    seeking_venue = SelectField(
-        'seeking_venue',
-        choices=[
-            ('Yes', 'Yes'),
-            ('No', 'No')
-        ]
-    )
-    seeking_description = TextAreaField(
-        'seeking_description'
+        'facebook_link', validators=[Optional(), URL()]    # Can chain these
     )
